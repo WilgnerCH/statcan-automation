@@ -33,16 +33,21 @@ five_years_ago = pd.Timestamp.today() - pd.DateOffset(years=5)
 filtered_df = filtered_df[filtered_df["date"] >= five_years_ago]
 
 # =============================
-# KPIs
+# KPIs (Safe Version)
 # =============================
 
-latest_value = filtered_df.iloc[-1]["value"]
-previous_value = filtered_df.iloc[-2]["value"]
+if len(filtered_df) >= 2:
+    latest_value = filtered_df.iloc[-1]["value"]
+    previous_value = filtered_df.iloc[-2]["value"]
+    delta_value = latest_value - previous_value
+else:
+    latest_value = filtered_df.iloc[-1]["value"]
+    delta_value = 0
 
 st.metric(
     label="Latest Month Value",
     value=f"{latest_value:,.2f}",
-    delta=f"{latest_value - previous_value:,.2f}"
+    delta=f"{delta_value:,.2f}"
 )
 
 # =============================
