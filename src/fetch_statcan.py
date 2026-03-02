@@ -1,7 +1,5 @@
 import requests
 import pandas as pd
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
 import os
 
 # =====================================
@@ -13,18 +11,8 @@ API_URL = "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestN
 VECTOR_START = 87008752
 VECTOR_END = 87009012
 
-LATEST_N = 60   # Buscar últimos 60 meses para segurança
+LATEST_N = 60   # 5 anos de histórico
 DATA_PATH = "data/trade_data.csv"
-
-# =====================================
-# DEFINIR MÊS ALVO (4 MESES ATRÁS)
-# =====================================
-
-today = datetime.today()
-target_date = today - relativedelta(months=4)
-target_ref = target_date.strftime("%Y-%m")
-
-print("Target month:", target_ref)
 
 # =====================================
 # GERAR LISTA COMPLETA DE VETORES
@@ -58,16 +46,11 @@ for item in data:
     vector_id = obj.get("vectorId")
 
     for dp in obj.get("vectorDataPoint", []):
-        if dp.get("refPer", "")[:7] == target_ref:
-            records.append({
-                "date": dp["refPer"][:7],
-                "vectorId": vector_id,
-                "value": dp["value"]
-            })
-
-if not records:
-    print("No new data available.")
-    exit(0)
+        records.append({
+            "date": dp["refPer"][:7],
+            "vectorId": vector_id,
+            "value": dp["value"]
+        })
 
 df_new = pd.DataFrame(records)
 
@@ -87,6 +70,8 @@ if os.path.exists(DATA_PATH):
 else:
     df_combined = df_new
 
+df_combined.sort_values(by=["vectorId", "date"], inplace=True)
+
 df_combined.to_csv(DATA_PATH, index=False)
 
-print("Dataset updated successfully.")
+print("Historical dataset updated successfully.")
