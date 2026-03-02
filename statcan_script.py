@@ -21,7 +21,7 @@ print("Target month:", target_ref)
 url = "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestNPeriods"
 
 payload = {
-    "vectorIds": [INSERIR_AQUI_VECTOR_COMERCIO],
+    "vectorIds": [41690973],
     "latestN": 12
 }
 
