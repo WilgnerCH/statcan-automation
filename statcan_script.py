@@ -1,22 +1,10 @@
 import requests
 import pandas as pd
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
 import os
 import sys
 
 # =============================
-# 1. CALCULAR MÊS DISPONÍVEL
-# =============================
-
-today = datetime.today()
-target_date = today - relativedelta(months=4)
-target_ref = target_date.strftime("%Y-%m")
-
-print("Target month:", target_ref)
-
-# =============================
-# 2. CONSULTAR API
+# 1. CONSULTAR API
 # =============================
 
 url = "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestNPeriods"
@@ -24,7 +12,7 @@ url = "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestNPeri
 payload = [
     {
         "vectorId": 41690973,
-        "latestN": 12
+        "latestN": 1
     }
 ]
 
@@ -42,24 +30,31 @@ if not isinstance(data, list) or "object" not in data[0]:
 
 data_object = data[0]["object"]
 
-records = []
-
-for entry in data_object["vectorDataPoint"]:
-    if entry.get("refPer") == target_ref:
-        records.append({
-            "ref_date": entry["refPer"],
-            "value": entry["value"]
-        })
-
-if not records:
-    print("Data not yet available for:", target_ref)
+if not data_object["vectorDataPoint"]:
+    print("No data returned from API.")
     sys.exit(0)
 
-df = pd.DataFrame(records)
+entry = data_object["vectorDataPoint"][0]
 
-filename = f"statcan_{target_ref}.csv"
+ref_date = entry["refPer"]
+value = entry["value"]
+
+print("Latest available month:", ref_date)
+
+# =============================
+# 2. SALVAR CSV
+# =============================
+
+os.makedirs("data", exist_ok=True)
+
+filename = f"data/statcan_{ref_date}.csv"
 
 if not os.path.exists(filename):
+    df = pd.DataFrame([{
+        "ref_date": ref_date,
+        "value": value
+    }])
+
     df.to_csv(filename, index=False)
     print("Saved:", filename)
 else:
