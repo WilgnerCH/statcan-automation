@@ -13,15 +13,15 @@ API_URL = "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestN
 VECTOR_START = 87008752
 VECTOR_END = 87009012
 
-LATEST_N = 4
+LATEST_N = 12   # Buscar últimos 12 meses para segurança
 DATA_PATH = "data/trade_data.csv"
 
 # =====================================
-# DEFINIR MÊS ALVO
+# DEFINIR MÊS ALVO (4 MESES ATRÁS)
 # =====================================
 
 today = datetime.today()
-target_date = today - relativedelta(months=1)
+target_date = today - relativedelta(months=4)
 target_ref = target_date.strftime("%Y-%m")
 
 print("Target month:", target_ref)
@@ -67,13 +67,15 @@ for item in data:
 
 if not records:
     print("No new data available.")
-    exit()
+    exit(0)
 
 df_new = pd.DataFrame(records)
 
 # =====================================
-# ATUALIZAR DATASET
+# ATUALIZAR DATASET HISTÓRICO
 # =====================================
+
+os.makedirs("data", exist_ok=True)
 
 if os.path.exists(DATA_PATH):
     df_existing = pd.read_csv(DATA_PATH)
@@ -84,9 +86,6 @@ if os.path.exists(DATA_PATH):
     )
 else:
     df_combined = df_new
-
-# Garantir que a pasta exista
-os.makedirs("data", exist_ok=True)
 
 df_combined.to_csv(DATA_PATH, index=False)
 
