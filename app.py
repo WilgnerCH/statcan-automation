@@ -11,7 +11,6 @@ st.markdown("Data source: Statistics Canada (automated monthly update)")
 # =============================
 
 df = pd.read_csv("data/trade_data.csv")
-
 df["date"] = pd.to_datetime(df["date"])
 
 # =============================
@@ -20,21 +19,45 @@ df["date"] = pd.to_datetime(df["date"])
 
 st.sidebar.header("Filters")
 
-vector_ids = df["vectorId"].unique()
+vector_ids = sorted(df["vectorId"].unique())
 selected_vector = st.sidebar.selectbox("Select Vector", vector_ids)
 
 filtered_df = df[df["vectorId"] == selected_vector]
+filtered_df = filtered_df.sort_values("date")
 
 # =============================
-# Main display
+# Last 5 years filter
 # =============================
 
-st.subheader("Monthly Evolution")
+five_years_ago = pd.Timestamp.today() - pd.DateOffset(years=5)
+filtered_df = filtered_df[filtered_df["date"] >= five_years_ago]
+
+# =============================
+# KPIs
+# =============================
+
+latest_value = filtered_df.iloc[-1]["value"]
+previous_value = filtered_df.iloc[-2]["value"]
+
+st.metric(
+    label="Latest Month Value",
+    value=f"{latest_value:,.2f}",
+    delta=f"{latest_value - previous_value:,.2f}"
+)
+
+# =============================
+# Chart
+# =============================
+
+st.subheader("Monthly Evolution (Last 5 Years)")
 
 st.line_chart(
     filtered_df.set_index("date")["value"]
 )
 
-st.subheader("Raw Data")
+# =============================
+# Raw Data
+# =============================
 
-st.dataframe(filtered_df.sort_values("date", ascending=False))
+with st.expander("See Raw Data"):
+    st.dataframe(filtered_df.sort_values("date", ascending=False))
