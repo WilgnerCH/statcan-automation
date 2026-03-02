@@ -13,7 +13,7 @@ API_URL = "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestN
 VECTOR_START = 87008752
 VECTOR_END = 87009012
 
-LATEST_N = 12   # Buscar últimos 12 meses para segurança
+LATEST_N = 60   # Buscar últimos 60 meses para segurança
 DATA_PATH = "data/trade_data.csv"
 
 # =====================================
