@@ -36,23 +36,20 @@ if response.status_code != 200:
 
 data = response.json()
 
-# Verificação de segurança
-if "object" not in data:
+if not isinstance(data, list) or "object" not in data[0]:
     print("Unexpected API response:", data)
     sys.exit(1)
 
+data_object = data[0]["object"]
+
 records = []
 
-for item in data["object"]:
-    if "vectorDataPoint" not in item:
-        continue
-        
-    for entry in item["vectorDataPoint"]:
-        if entry.get("refPer") == target_ref:
-            records.append({
-                "ref_date": entry["refPer"],
-                "value": entry["value"]
-            })
+for entry in data_object["vectorDataPoint"]:
+    if entry.get("refPer") == target_ref:
+        records.append({
+            "ref_date": entry["refPer"],
+            "value": entry["value"]
+        })
 
 if not records:
     print("Data not yet available for:", target_ref)
