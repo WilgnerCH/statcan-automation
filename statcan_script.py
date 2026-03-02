@@ -21,10 +21,12 @@ print("Target month:", target_ref)
 
 url = "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestNPeriods"
 
-payload = {
-    "vectorIds": [41690973],  # teste temporário
-    "latestN": 12
-}
+payload = [
+    {
+        "vectorId": 41690973,
+        "latestN": 12
+    }
+]
 
 response = requests.post(url, json=payload)
 
