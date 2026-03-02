@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests pandas
+          pip install requests pandas python-dateutil
 
       - name: Run script
         run: python statcan_script.py
